@@ -43,8 +43,8 @@ jobs:
           apk add gettext
           aws eks update-kubeconfig --region ${{ secrets.REGION }} --name eks-${{ inputs.ENVIRONMENT }}
           envsubst < ${{ inputs.ENVIRONMENT }}/${{ inputs.ENVIRONMENT }}-${{ inputs.APP_NAME }}.yml | kubectl apply -f -
-          kubectl rollout restart deployment/${{ inputs.APP_NAME }} -n ${{ secrets.KUBENAMESPACE }}
-          kubectl rollout status deployment/${{ inputs.APP_NAME }} -n ${{ secrets.KUBENAMESPACE }}
+          kubectl rollout restart deployment/${{ inputs.APP_NAME }} -n ${{ secrets.CI_KUBENAMESPACE }}
+          kubectl rollout status deployment/${{ inputs.APP_NAME }} -n ${{ secrets.CI_KUBENAMESPACE }}
       - name: slack Notification
         if: failure()
         uses: rtCamp/action-slack-notify@v2
