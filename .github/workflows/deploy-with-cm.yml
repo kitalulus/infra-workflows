@@ -15,6 +15,14 @@ on:
         required: false
         type: string
         default: ''
+      CONFIGPATH:
+        required: false
+        type: string
+        default: ''
+      CONFIGMAP:
+        required: false
+        type: string
+        default: ''
 
 jobs:
   deploy_stage:
