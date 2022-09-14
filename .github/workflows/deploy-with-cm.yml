@@ -19,10 +19,6 @@ on:
         required: false
         type: string
         default: ''
-      CONFIGMAP:
-        required: false
-        type: string
-        default: ''
 
 jobs:
   deploy_stage:
@@ -40,11 +36,10 @@ jobs:
           aws-access-key-id: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.REGION }}
-      - name: create cm
+      - name: Apply Config
         run: |
-          apk add gettext
           aws eks update-kubeconfig --region ${{ secrets.REGION }} --name eks-${{ inputs.ENVIRONMENT }}
-          kubectl create configmap ${{ inputs.CONFIGMAP }} --from-file ${{ inputs.CONFIGPATH }} -o yaml --dry-run | kubectl -n platform apply -f -
+          kubectl create configmap ${{ inputs.APP_NAME }}-cm --from-file ${{ inputs.CONFIGPATH }} -o yaml --dry-run | kubectl -n platform apply -f -
       - name: Get K8S Config
         uses: actions/checkout@v3
         with:
