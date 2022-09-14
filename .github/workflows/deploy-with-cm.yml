@@ -34,6 +34,9 @@ jobs:
       - name: Get Short SHA
         id: short-sha
         run: echo "TAG_NAME=`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
+      - name: create cm
+        run: |
+          kubectl create configmap ${{ inputs.CONFIGMAP }} --from-file ${{ inputs.CONFIGPATH }} -o yaml --dry-run | kubectl -n platform apply -f -
       - name: Get K8S Config
         uses: actions/checkout@v3
         with:
@@ -50,7 +53,6 @@ jobs:
         run: |
           apk add gettext
           aws eks update-kubeconfig --region ${{ secrets.REGION }} --name eks-${{ inputs.ENVIRONMENT }}
-          kubectl create configmap ${{ inputs.CONFIGMAP }} --from-file ${{ inputs.CONFIGPATH }} -o yaml --dry-run | kubectl -n platform apply -f -
           envsubst < ${{ inputs.ENVIRONMENT }}/${{ inputs.ENVIRONMENT }}-${{ inputs.APP_NAME }}.yml | kubectl apply -f -
           kubectl rollout restart deployment/${{ inputs.APP_NAME }} -n ${{ secrets.CI_KUBENAMESPACE }}
           kubectl rollout status deployment/${{ inputs.APP_NAME }} -n ${{ secrets.CI_KUBENAMESPACE }}
