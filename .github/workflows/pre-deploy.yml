@@ -16,6 +16,9 @@ on:
         type: string
         default: ''
 
+env:
+  ENVIRONMENT: '${{ inputs.ENVIRONMENT }}'
+
 jobs:
   deploy_stage:
     name: K8S Deploy
