@@ -54,6 +54,6 @@ jobs:
           SLACK_COLOR: ${{ job.status }}
           SLACK_CHANNEL: ${{ secrets.CI_DEV_SLACK_CHANNEL }}
           SLACK_MESSAGE: "BUILD FAILED :alert-red:"
-          SLACK_TITLE: 'Deploy ${{env.APP_NAME}} ' 
+          SLACK_TITLE: 'Deploy ${{ inputs.APP_NAME }} ' 
           SLACK_WEBHOOK: ${{ secrets.CI_DEV_SLACK_WEBHOOK }}
           MSG_MINIMAL: ${{ secrets.CI_SLACK_MSG_MINIMAL}}
