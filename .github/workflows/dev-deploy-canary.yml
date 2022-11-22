@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Get Short SHA
         id: short-sha
-        run: echo "TAG_NAME=`echo ${{  github.ref_name }} >> $GITHUB_ENV
+        run: echo "TAG_NAME=`echo ${{  github.ref_name }}`" >> $GITHUB_ENV
       - name: Get K8S Config
         uses: actions/checkout@v3
         with:
