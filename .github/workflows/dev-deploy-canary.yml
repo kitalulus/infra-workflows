@@ -16,6 +16,9 @@ on:
         type: string
         default: ''
 
+env:
+  APP_NAME: '${{ inputs.APP_NAME }}'
+
 jobs:
   deploy_stage:
     name: K8S Deploy
@@ -43,7 +46,7 @@ jobs:
           apk add gettext
           aws eks update-kubeconfig --region ${{ secrets.REGION }} --name eks-${{ inputs.ENVIRONMENT }}
           envsubst < ${{ inputs.ENVIRONMENT }}/${{ inputs.ENVIRONMENT }}-${{ inputs.APP_NAME }}.yml | kubectl apply -f -
-          kubectl rollout status deployment/${{ inputs.APP_NAME }} -n canary-test
+          kubectl rollout status deployment/${{ inputs.APP_NAME }}-canary -n canary-test
           kubectl scale --replicas=3 deploy ${{ inputs.APP_NAME }} -n canary-test
       # - name: slack Notification
       #   if: failure()
