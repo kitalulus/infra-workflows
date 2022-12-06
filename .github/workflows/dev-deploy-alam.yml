@@ -47,7 +47,7 @@ jobs:
           apk add gettext
           ls -alh
           aws eks update-kubeconfig --region ${{ secrets.REGION }} --name eks-${{ inputs.ENVIRONMENT }}
-          envsubst < testing/testing-${{ inputs.APP_NAME }}.yml | kubectl apply -f -
+          envsubst < ${{ inputs.ENVIRONMENT }}/testing-${{ inputs.APP_NAME }}.yml | kubectl apply -f -
           ls -alh
           kubectl rollout restart deployment/${{ inputs.APP_NAME }} -n ${{ secrets.CI_KUBENAMESPACE }}
           kubectl rollout status deployment/${{ inputs.APP_NAME }} -n ${{ secrets.CI_KUBENAMESPACE }}
