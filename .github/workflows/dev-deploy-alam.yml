@@ -48,6 +48,6 @@ jobs:
           ls -alh
           aws eks update-kubeconfig --region ${{ secrets.REGION }} --name eks-${{ inputs.ENVIRONMENT }}
           ls -alh
-          envsubst < testing/testing-${{ inputs.APP_NAME }}.yml | kubectl apply -f -
+          envsubst < testing/testing-cons-web-alam.yml | kubectl apply -f -
           kubectl rollout restart deployment/${{ inputs.APP_NAME }} -n ${{ secrets.CI_KUBENAMESPACE }}
           kubectl rollout status deployment/${{ inputs.APP_NAME }} -n ${{ secrets.CI_KUBENAMESPACE }}
