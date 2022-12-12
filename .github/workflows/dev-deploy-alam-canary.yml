@@ -28,6 +28,9 @@ on:
         type: string
         default: ''
 
+env:
+  APP_NAME: '${{ inputs.APP_NAME }}'
+
 jobs:
   deploy_stage:
     name: K8S Deploy
@@ -59,13 +62,13 @@ jobs:
           envsubst < ${{ inputs.ENVIRONMENT }}/${{ inputs.ENVIRONMENT }}-${{ inputs.APP_NAME }}.yml | kubectl apply -f -
           kubectl rollout restart deployment/${{ inputs.APP_NAME }} -n ${{ secrets.CI_KUBENAMESPACE }}
           kubectl rollout status deployment/${{ inputs.APP_NAME }} -n ${{ secrets.CI_KUBENAMESPACE }}
-      # - name: Get Ingress Config
-      #   uses: actions/checkout@v3
-      #   with:
-      #     repository: ${{ secrets.CI_MANIFEST_CANARY }}
-      #     ref: alam
-      #     token: ${{ secrets.KL_GITHUB_TOKEN }}
-      # - name: Apply Ingress Config
-      #   run: |
-      #     ls -alh
-      #     ls -alh ${{ inputs.ING_PATH }}
+      - name: Get Ingress Config
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ secrets.CI_MANIFEST_CANARY }}
+          ref: alam
+          token: ${{ secrets.KL_GITHUB_TOKEN }}
+      - name: Apply Ingress Config
+        run: |
+          ls -alh
+          ls -alh ${{ inputs.ING_PATH }}
