@@ -15,6 +15,18 @@ on:
         required: false
         type: string
         default: ''
+      WEIGHT:
+        required: false
+        type: string
+        default: ''
+      ING_PATH:
+        required: false
+        type: string
+        default: ''
+      REPO:
+        required: false
+        type: string
+        default: ''
 
 jobs:
   deploy_stage:
@@ -45,3 +57,13 @@ jobs:
           envsubst < ${{ inputs.ENVIRONMENT }}/testing-${{ inputs.APP_NAME }}.yml | kubectl apply -f -
           kubectl rollout restart deployment/${{ inputs.APP_NAME }} -n ${{ secrets.CI_KUBENAMESPACE }}
           kubectl rollout status deployment/${{ inputs.APP_NAME }} -n ${{ secrets.CI_KUBENAMESPACE }}
+      - name: Get Ingress Config
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ secrets.CI_MANIFEST_CANARY }}
+          ref: alam
+          token: ${{ secrets.KL_GITHUB_TOKEN }}
+      - name: Apply Ingress Config
+        run: |
+          ls -alh
+          ls -alh ${{ inputs.ING_PATH }}
