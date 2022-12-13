@@ -63,7 +63,6 @@ jobs:
           kubectl rollout restart deployment/${{ inputs.APP_NAME }} -n ${{ secrets.CI_KUBENAMESPACE }}
           kubectl rollout status deployment/${{ inputs.APP_NAME }} -n ${{ secrets.CI_KUBENAMESPACE }}
       - name: Get Ingress Config
-        uses: actions/checkout@v3
         with:
           repository: ${{ secrets.CI_MANIFEST_CANARY }}
           ref: alam
