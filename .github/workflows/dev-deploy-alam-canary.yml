@@ -30,6 +30,7 @@ on:
 
 env:
   APP_NAME: '${{ inputs.APP_NAME }}'
+  WEIGHT: '${{ inputs.WEIGHT }}'
 
 jobs:
   deploy_stage:
@@ -68,3 +69,7 @@ jobs:
           repository: ${{ secrets.CI_MANIFEST_CANARY }}
           ref: alam
           token: ${{ secrets.KL_GITHUB_TOKEN }}
+      - name: Apply Ingress Config
+        run: |
+          ls -alh
+          envsubst < ${{ inputs.ING_PATH }}/${{ inputs.APP_NAME }}.yaml | kubectl apply -f -
