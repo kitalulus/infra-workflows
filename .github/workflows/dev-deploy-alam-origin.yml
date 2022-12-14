@@ -27,6 +27,10 @@ on:
         required: false
         type: string
         default: ''
+      CANARY:
+        required: false
+        type: string
+        default: ''
 
 env:
   APP_NAME: '${{ inputs.APP_NAME }}'
@@ -69,7 +73,8 @@ jobs:
           repository: ${{ secrets.CI_MANIFEST_CANARY }}
           ref: alam
           token: ${{ secrets.KL_GITHUB_TOKEN }}
-      - name: Remove Ing Canary
+      - name: Remove Canary Depedency
         run: |
           ls -alh
           envsubst < ${{ inputs.ING_PATH }}/${{ inputs.APP_NAME }}.yaml | kubectl delete -f -
+          kubectl delete deployment/${{ inputs.CANARY }} -n ${{ secrets.CI_KUBENAMESPACE }}
