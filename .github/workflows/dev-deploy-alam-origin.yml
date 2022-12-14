@@ -76,5 +76,5 @@ jobs:
       - name: Remove Canary Depedency
         run: |
           ls -alh
-          kubectl delete -f ${{ inputs.ING_PATH }}/${{ inputs.APP_NAME }}.yaml
+          kubectl delete -f ${{ inputs.ING_PATH }}/${{ inputs.CANARY }}.yaml
           kubectl delete deployment/${{ inputs.CANARY }} -n ${{ secrets.CI_KUBENAMESPACE }}
