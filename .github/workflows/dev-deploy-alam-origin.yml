@@ -1,0 +1,75 @@
+name: Deploy workflow
+on:
+  workflow_call:
+    inputs:
+      # pass in environment through manual trigger, if not passed in, default to 'development'
+      ENVIRONMENT:
+        required: false
+        type: string
+        default: ''
+      APP_NAME:
+        required: false
+        type: string
+        default: ''
+      RUNNER:
+        required: false
+        type: string
+        default: ''
+      WEIGHT:
+        required: false
+        type: string
+        default: ''
+      ING_PATH:
+        required: false
+        type: string
+        default: ''
+      REPO:
+        required: false
+        type: string
+        default: ''
+
+env:
+  APP_NAME: '${{ inputs.APP_NAME }}'
+  WEIGHT: '${{ inputs.WEIGHT }}'
+
+jobs:
+  deploy_stage:
+    name: K8S Deploy
+    runs-on: ${{ inputs.RUNNER }}
+    container: alpine/k8s:1.23.7
+    steps:
+      - uses: actions/checkout@v3
+      - name: Get Short SHA
+        id: short-sha
+        run: echo "TAG_NAME=`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
+      - name: Get K8S Config
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ secrets.CI_MANIFEST }}
+          ref: alam
+          token: ${{ secrets.KL_GITHUB_TOKEN }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.REGION }}
+      - name: Deploy to k8s
+        run: |
+          ls -alh
+          ls -alh dev
+          apk add gettext
+          aws eks update-kubeconfig --region ${{ secrets.REGION }} --name eks-${{ inputs.ENVIRONMENT }}
+          envsubst < ${{ inputs.ENVIRONMENT }}/${{ inputs.ENVIRONMENT }}-${{ inputs.APP_NAME }}.yml | kubectl apply -f -
+          kubectl rollout restart deployment/${{ inputs.APP_NAME }} -n ${{ secrets.CI_KUBENAMESPACE }}
+          kubectl rollout status deployment/${{ inputs.APP_NAME }} -n ${{ secrets.CI_KUBENAMESPACE }}
+      - name: Get Ingress Config
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ secrets.CI_MANIFEST_CANARY }}
+          ref: alam
+          token: ${{ secrets.KL_GITHUB_TOKEN }}
+      - name: Remove Ing Canary
+        run: |
+          ls -alh
+          envsubst < ${{ inputs.ING_PATH }}/${{ inputs.APP_NAME }}.yaml | kubectl delete -f -
