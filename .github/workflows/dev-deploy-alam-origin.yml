@@ -31,6 +31,10 @@ on:
         required: false
         type: string
         default: ''
+      VERSION:
+        required: false
+        type: string
+        default: ''
 
 env:
   APP_NAME: '${{ inputs.APP_NAME }}'

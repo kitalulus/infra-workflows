@@ -27,10 +27,15 @@ on:
         required: false
         type: string
         default: ''
+      VERSION:
+        required: false
+        type: string
+        default: ''
 
 env:
   APP_NAME: '${{ inputs.APP_NAME }}'
   WEIGHT: '${{ inputs.WEIGHT }}'
+  VERSION: '${{ inputs.VERSION }}'
 
 jobs:
   deploy_stage:
@@ -72,4 +77,5 @@ jobs:
       - name: Apply Ingress Config
         run: |
           ls -alh
-          envsubst < ${{ inputs.ING_PATH }}/${{ inputs.APP_NAME }}.yaml | kubectl apply -f -
+          envsubst < ${{ inputs.ING_PATH }}/${{ inputs.APP_NAME }}.yaml | kubectl apply -f - 
+      - name: remove ingress canary
