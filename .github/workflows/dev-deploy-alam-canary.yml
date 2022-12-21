@@ -78,4 +78,3 @@ jobs:
         run: |
           ls -alh
           envsubst < ${{ inputs.ING_PATH }}/${{ inputs.APP_NAME }}.yaml | kubectl apply -f - 
-      - name: remove ingress canary
