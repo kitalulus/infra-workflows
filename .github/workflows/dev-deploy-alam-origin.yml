@@ -39,6 +39,7 @@ on:
 env:
   APP_NAME: '${{ inputs.APP_NAME }}'
   WEIGHT: '${{ inputs.WEIGHT }}'
+  VERSION: '${{ inputs.VERSION }}'
 
 jobs:
   deploy_stage:
@@ -64,8 +65,6 @@ jobs:
           aws-region: ${{ secrets.REGION }}
       - name: Deploy to k8s
         run: |
-          ls -alh
-          ls -alh dev
           apk add gettext
           aws eks update-kubeconfig --region ${{ secrets.REGION }} --name eks-${{ inputs.ENVIRONMENT }}
           envsubst < ${{ inputs.ENVIRONMENT }}/${{ inputs.ENVIRONMENT }}-${{ inputs.APP_NAME }}.yml | kubectl apply -f -
