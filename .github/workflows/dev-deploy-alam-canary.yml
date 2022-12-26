@@ -77,4 +77,4 @@ jobs:
       - name: Apply Ingress Config
         run: |
           ls -alh
-          envsubst < ${{ inputs.ING_PATH }}/${{ inputs.APP_NAME }}.yaml | kubectl apply -f - 
+          envsubst < ${{ inputs.ING_PATH }}${{ inputs.APP_NAME }}.yaml | kubectl apply -f - 
