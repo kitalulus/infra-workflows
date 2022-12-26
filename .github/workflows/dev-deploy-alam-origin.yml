@@ -78,7 +78,7 @@ jobs:
           token: ${{ secrets.KL_GITHUB_TOKEN }}
       - name: apply Ing origin
         run: |
-          envsubst < ${{ inputs.ING_PATH }}${{  inputs.ENVIRONMENT  }}-${{ inputs.APP_NAME }}.yaml | kubectl apply -f -  
+          envsubst < ${{ inputs.ING_PATH }}${{ inputs.APP_NAME }}.yaml | kubectl apply -f -  
       - name: Remove Canary Depedency
         run: |
           ls -alh
