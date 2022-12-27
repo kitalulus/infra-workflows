@@ -83,4 +83,4 @@ jobs:
         run: |
           ls -alh
           kubectl delete -f ${{ inputs.ING_PATH }}${{ inputs.CANARY }}.yaml
-          kubectl delete deployment/${{ inputs.CANARY }} -n ${{ secrets.CI_KUBENAMESPACE }}
+          kubectl delete deployment/${{ inputs.CANARY }}-v2-0-1 -n ${{ secrets.CI_KUBENAMESPACE }}
