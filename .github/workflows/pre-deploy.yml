@@ -48,15 +48,15 @@ jobs:
           envsubst < ${{ inputs.ENVIRONMENT }}/${{ inputs.ENVIRONMENT }}-${{ inputs.APP_NAME }}.yml | kubectl apply -f -
           kubectl rollout restart deployment/${{ inputs.APP_NAME }} -n ${{ secrets.CI_KUBENAMESPACE }}
           kubectl rollout status deployment/${{ inputs.APP_NAME }} -n ${{ secrets.CI_KUBENAMESPACE }}
-      - name: slack Notification
-        if: failure()
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_USERNAME: ${{ secrets.CI_SLACK_USERNAME }}
-          SLACK_ICON: ${{ secrets.CI_SLACK_ICON }}
-          SLACK_COLOR: ${{ job.status }}
-          SLACK_CHANNEL: ${{ secrets.CI_PRE_SLACK_CHANNEL }}
-          SLACK_MESSAGE: "BUILD FAILED :alert-red:"
-          SLACK_TITLE: 'Deploy ${{env.APP_NAME}} ' 
-          SLACK_WEBHOOK: ${{ secrets.CI_PRE_SLACK_WEBHOOK }}
-          MSG_MINIMAL: ${{ secrets.CI_SLACK_MSG_MINIMAL}}
+      # - name: slack Notification
+      #   if: failure()
+      #   uses: rtCamp/action-slack-notify@v2
+      #   env:
+      #     SLACK_USERNAME: ${{ secrets.CI_SLACK_USERNAME }}
+      #     SLACK_ICON: ${{ secrets.CI_SLACK_ICON }}
+      #     SLACK_COLOR: ${{ job.status }}
+      #     SLACK_CHANNEL: ${{ secrets.CI_PRE_SLACK_CHANNEL }}
+      #     SLACK_MESSAGE: "BUILD FAILED :alert-red:"
+      #     SLACK_TITLE: 'Deploy ${{env.APP_NAME}} ' 
+      #     SLACK_WEBHOOK: ${{ secrets.CI_PRE_SLACK_WEBHOOK }}
+      #     MSG_MINIMAL: ${{ secrets.CI_SLACK_MSG_MINIMAL}}
