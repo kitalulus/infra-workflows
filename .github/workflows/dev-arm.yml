@@ -22,12 +22,12 @@ jobs:
     runs-on: ${{ inputs.RUNNER }}
     container: public.ecr.aws/y9q6m8f2/kl-arm:bookworm-build
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Get Short SHA
         id: short-sha
         run: echo "TAG_NAME=`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
       - name: Get K8S Config
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: ${{ secrets.CI_MANIFEST }}
           ref: main
