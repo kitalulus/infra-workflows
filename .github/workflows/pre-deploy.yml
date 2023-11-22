@@ -23,7 +23,7 @@ jobs:
   deploy_stage:
     name: K8S Deploy
     runs-on: ${{ inputs.RUNNER }}
-    container: alpine/k8s:1.23.7
+    container: alpine/k8s:1.25.15
     steps:
       - uses: actions/checkout@v3
       - name: Get Short SHA

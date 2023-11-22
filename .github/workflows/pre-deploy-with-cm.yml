@@ -27,9 +27,9 @@ jobs:
   deploy_stage:
     name: K8S Deploy
     runs-on: ${{ inputs.RUNNER }}
-    container: alpine/k8s:1.23.7
+    container: alpine/k8s:1.25.15
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Get Short SHA
         id: short-sha
         run: echo "TAG_NAME=`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
@@ -44,7 +44,7 @@ jobs:
           aws eks update-kubeconfig --region ${{ secrets.REGION }} --name eks-${{ inputs.ENVIRONMENT }}
           kubectl create configmap ${{ inputs.APP_NAME }}-cm --from-file ${{ inputs.CONFIGPATH }} -o yaml --dry-run | kubectl -n platform apply -f -
       - name: Get K8S Config
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: ${{ secrets.CI_MANIFEST }}
           ref: main
