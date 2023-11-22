@@ -51,7 +51,7 @@ jobs:
         env:
             SLACK_CHANNEL: ${{ secrets.CI_DEV_SLACK_CHANNEL }}
             SLACK_MESSAGE: 'DEPLOY FAILED ${{ inputs.APP_NAME }} into eks-${{ inputs.ENVIRONMENT }} environment :alert-red:'
-            SLACK_TITLE: 'Deploy ${{ inputs.APP_NAME }} '
+            SLACK_TITLE: 'Deploy ${{ inputs.APP_NAME }} by ${{ github.triggering_actor }}'
             SLACK_USERNAME: 'GITHUB_ACTION'
             SLACK_ICON: ${{ secrets.CI_SLACK_ICON }}
             SLACK_COLOR: ${{ job.status }}
@@ -63,7 +63,7 @@ jobs:
         env:
             SLACK_CHANNEL: ${{ secrets.CI_DEV_SLACK_CHANNEL }}
             SLACK_MESSAGE: 'Just deployed our service ${{ inputs.APP_NAME }} into eks-${{ inputs.ENVIRONMENT }} environment :rocket:'
-            SLACK_TITLE: 'Deploy ${{ inputs.APP_NAME }} '
+            SLACK_TITLE: 'Deploy ${{ inputs.APP_NAME }} by ${{ github.triggering_actor }}'
             SLACK_USERNAME: 'GITHUB_ACTION'
             SLACK_ICON: ${{ secrets.CI_SLACK_ICON }}
             SLACK_COLOR: ${{ job.status }}
