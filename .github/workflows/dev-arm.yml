@@ -40,20 +40,35 @@ jobs:
           aws-region: ${{ secrets.REGION }}
       - name: Deploy to k8s
         run: |
-          apk add gettext
+          apt-get install -y gettext
           aws eks update-kubeconfig --region ${{ secrets.REGION }} --name eks-${{ inputs.ENVIRONMENT }}
           envsubst < ${{ inputs.ENVIRONMENT }}/${{ inputs.ENVIRONMENT }}-${{ inputs.APP_NAME }}.yml | kubectl apply -f -
           kubectl rollout restart deployment/${{ inputs.APP_NAME }} -n ${{ secrets.CI_KUBENAMESPACE }}
           kubectl rollout status deployment/${{ inputs.APP_NAME }} -n ${{ secrets.CI_KUBENAMESPACE }}
-      - name: slack Notification
+      - name: slack failure notification
         if: failure()
-        uses: rtCamp/action-slack-notify@v2
+        uses: christallire/action-slack-notify@master
         env:
-          SLACK_USERNAME: ${{ secrets.CI_SLACK_USERNAME }}
-          SLACK_ICON: ${{ secrets.CI_SLACK_ICON }}
-          SLACK_COLOR: ${{ job.status }}
-          SLACK_CHANNEL: ${{ secrets.CI_DEV_SLACK_CHANNEL }}
-          SLACK_MESSAGE: "BUILD FAILED :alert-red:"
-          SLACK_TITLE: 'Deploy ${{ inputs.APP_NAME }} ' 
-          SLACK_WEBHOOK: ${{ secrets.CI_DEV_SLACK_WEBHOOK }}
-          MSG_MINIMAL: ${{ secrets.CI_SLACK_MSG_MINIMAL}}
+            SLACK_CHANNEL: ${{ secrets.CI_DEV_SLACK_CHANNEL }}
+            SLACK_MESSAGE: 'DEPLOY FAILED ${{ inputs.APP_NAME }} into eks-${{ inputs.ENVIRONMENT }} environment :alert-red:'
+            SLACK_TITLE: 'Deploy ${{ inputs.APP_NAME }} by ${{ github.triggering_actor }}'
+            SLACK_USERNAME: 'GITHUB_ACTION'
+            SLACK_ICON: ${{ secrets.CI_SLACK_ICON }}
+            SLACK_COLOR: ${{ job.status }}
+            SLACK_WEBHOOK: ${{ secrets.CI_DEV_SLACK_WEBHOOK }}
+            MSG_MINIMAL: ref,actions url,commit
+            SLACK_FOOTER: 'Powered By Kitalulus SRE'
+      - name: slack notification
+        uses: christallire/action-slack-notify@master
+        env:
+            SLACK_CHANNEL: ${{ secrets.CI_DEV_SLACK_CHANNEL }}
+            SLACK_MESSAGE: 'Just deployed our service ${{ inputs.APP_NAME }} into eks-${{ inputs.ENVIRONMENT }} environment :rocket:'
+            SLACK_TITLE: 'Deploy ${{ inputs.APP_NAME }} by ${{ github.triggering_actor }}'
+            SLACK_USERNAME: 'GITHUB_ACTION'
+            SLACK_ICON: ${{ secrets.CI_SLACK_ICON }}
+            SLACK_COLOR: ${{ job.status }}
+            SLACK_WEBHOOK: ${{ secrets.CI_DEV_SLACK_WEBHOOK }}
+            MSG_MINIMAL: ref,actions url,commit
+            SLACK_FOOTER: 'Powered By Kitalulus SRE'
+      - name: Adding markdown
+        run: echo '### SRE :rocket:' >> $GITHUB_STEP_SUMMARY
