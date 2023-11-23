@@ -1,0 +1,75 @@
+name: Deploy workflow
+on:
+  workflow_call:
+    inputs:
+      # pass in environment through manual trigger, if not passed in, default to 'production'
+      ENVIRONMENT:
+        required: false
+        type: string
+        default: ''
+      APP_NAME:
+        required: false
+        type: string
+        default: ''
+      RUNNER:
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  deploy_stage:
+    name: K8S Deploy
+    runs-on: ${{ inputs.RUNNER }}
+    container: public.ecr.aws/y9q6m8f2/kl-arm:bookworm-build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get Short SHA
+        id: short-sha
+        run: echo "TAG_NAME=`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
+      - name: Set current date as deploy time env variable
+        run: echo "DEPLOY_TIME=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
+      - name: Get K8S Config
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.CI_MANIFEST }}
+          ref: main
+          token: ${{ secrets.KL_GITHUB_TOKEN }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.PRD_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PRD_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.REGION }}
+      - name: Deploy to k8s
+        run: |
+          apt-get install -y gettext
+          aws eks update-kubeconfig --region ${{ secrets.REGION }} --name eks-${{ inputs.ENVIRONMENT }}
+          envsubst < ${{ inputs.ENVIRONMENT }}/${{ inputs.ENVIRONMENT }}-${{ inputs.APP_NAME }}.yml | kubectl apply -f -
+          kubectl rollout status deployment/${{ inputs.APP_NAME }} -n ${{ secrets.CI_KUBENAMESPACE }}
+      - name: slack failure notification
+        if: failure()
+        uses: christallire/action-slack-notify@master
+        env:
+            SLACK_CHANNEL: ${{ secrets.CI_PRE_SLACK_CHANNEL }}
+            SLACK_MESSAGE: 'DEPLOY FAILED ${{ inputs.APP_NAME }} into eks-${{ inputs.ENVIRONMENT }} environment :alert-red:'
+            SLACK_TITLE: 'Deploy ${{ inputs.APP_NAME }} by ${{ github.triggering_actor }}'
+            SLACK_USERNAME: 'GITHUB_ACTION'
+            SLACK_ICON: ${{ secrets.CI_SLACK_ICON }}
+            SLACK_COLOR: ${{ job.status }}
+            SLACK_WEBHOOK: ${{ secrets.CI_PRE_SLACK_WEBHOOK }}
+            MSG_MINIMAL: ref,actions url,commit
+            SLACK_FOOTER: 'Powered By Kitalulus SRE'
+      - name: slack notification
+        uses: christallire/action-slack-notify@master
+        env:
+            SLACK_CHANNEL: ${{ secrets.CI_PRE_SLACK_CHANNEL }}
+            SLACK_MESSAGE: 'Just deployed our service ${{ inputs.APP_NAME }} into eks-${{ inputs.ENVIRONMENT }} environment :rocket:'
+            SLACK_TITLE: 'Deploy ${{ inputs.APP_NAME }} by ${{ github.triggering_actor }}'
+            SLACK_USERNAME: 'GITHUB_ACTION'
+            SLACK_ICON: ${{ secrets.CI_SLACK_ICON }}
+            SLACK_COLOR: ${{ job.status }}
+            SLACK_WEBHOOK: ${{ secrets.CI_PRE_SLACK_WEBHOOK }}
+            MSG_MINIMAL: ref,actions url,commit
+            SLACK_FOOTER: 'Powered By Kitalulus SRE'
+      - name: Adding markdown
+        run: echo '### SRE :rocket:' >> $GITHUB_STEP_SUMMARY
