@@ -15,6 +15,10 @@ on:
         required: false
         type: string
         default: ''
+      CONFIGPATH:
+        required: false
+        type: string
+        default: ''
 
 jobs:
   deploy_stage:
@@ -28,18 +32,22 @@ jobs:
         run: echo "TAG_NAME=`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
       - name: Set current date as deploy time env variable
         run: echo "DEPLOY_TIME=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
-      - name: Get K8S Config
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ secrets.CI_MANIFEST }}
-          ref: main
-          token: ${{ secrets.KL_GITHUB_TOKEN }}
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.PRD_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.PRD_AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.REGION }}
+      - name: Apply Config
+        run: |
+          aws eks update-kubeconfig --region ${{ secrets.REGION }} --name eks-${{ inputs.ENVIRONMENT }}
+          kubectl create configmap ${{ inputs.APP_NAME }}-cm --from-file ${{ inputs.CONFIGPATH }} -o yaml --dry-run | kubectl -n platform apply -f -
+      - name: Get K8S Config
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.CI_MANIFEST }}
+          ref: main
+          token: ${{ secrets.KL_GITHUB_TOKEN }}
       - name: Deploy to k8s
         run: |
           apt-get install -y gettext
