@@ -24,7 +24,7 @@ jobs:
   deploy_stage:
     name: K8S Deploy
     runs-on: ${{ inputs.RUNNER }}
-    container: public.ecr.aws/y9q6m8f2/kl-arm:bookworm-build
+    container: public.ecr.aws/y9q6m8f2/kl-arm:bookworm-build-v3
     steps:
       - uses: actions/checkout@v4
       - name: Get Short SHA
@@ -50,10 +50,9 @@ jobs:
           token: ${{ secrets.KL_GITHUB_TOKEN }}
       - name: Deploy to k8s
         run: |
-          apt-get install -y gettext
           aws eks update-kubeconfig --region ${{ secrets.REGION }} --name eks-${{ inputs.ENVIRONMENT }}
           envsubst < ${{ inputs.ENVIRONMENT }}/${{ inputs.ENVIRONMENT }}-${{ inputs.APP_NAME }}.yml | kubectl apply -f -
-          kubectl rollout status deployment/${{ inputs.APP_NAME }} -n ${{ secrets.CI_KUBENAMESPACE }}
+            kubectl rollout status -w --timeout=30m deployment/${{ inputs.APP_NAME }} -n ${{ secrets.CI_KUBENAMESPACE }}
       - name: slack failure notification
         if: failure()
         uses: christallire/action-slack-notify@master
