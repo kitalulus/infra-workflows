@@ -44,4 +44,4 @@ jobs:
         run: |
           aws eks update-kubeconfig --region ${{ secrets.REGION }} --name eks-${{ inputs.ENVIRONMENT }}
           envsubst < ${{ inputs.ENVIRONMENT }}/${{ inputs.ENVIRONMENT }}-${{ inputs.APP_NAME }}.yml | kubectl apply -f -
-          kubectl rollout status  -w --timeout=15m deployment/${{ inputs.APP_NAME }} -n ${{ secrets.CI_KUBENAMESPACE }}
+          kubectl rollout status  -w --timeout=15m deployment/${{ inputs.APP_NAME }} -n wordpress
