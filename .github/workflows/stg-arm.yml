@@ -18,7 +18,7 @@ on:
       NAMESPACE:
         required: false
         type: string
-        default: ''
+        default: 'staging'
 
 jobs:
   deploy_stage:
